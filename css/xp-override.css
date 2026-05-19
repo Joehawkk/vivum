@@ -1,0 +1,80 @@
+/* ══════════════════════════════════════════════════
+   vivum XP override — keeps vivum's runtime
+   contained inside the XP window chrome.
+   ══════════════════════════════════════════════════ */
+
+/* ── Undo vivum's full-page body layout ──────── */
+body, #background {
+  position: static !important;
+  width:    auto  !important;
+  height:   auto  !important;
+  background-color: transparent !important;
+}
+
+/* #background must exist for vivum's touch handler,
+   but should be invisible and non-interactive. */
+#background {
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+/* ── vivum canvases: fill #canvas-area ───────────── */
+canvas#sand-canvas,
+canvas#fluid-canvas {
+  position:   absolute !important;
+  inset:      0        !important;
+  width:      100%     !important;
+  height:     100%     !important;
+  max-width:  none     !important;
+  max-height: none     !important;
+  margin:     0        !important;
+  box-shadow: none     !important;
+  transform:  translateZ(0) !important; /* promote to own GPU compositor layer */
+  image-rendering: pixelated        !important;
+  image-rendering: -moz-crisp-edges !important;
+  image-rendering: crisp-edges      !important;
+}
+
+canvas#sand-canvas  { z-index: 2 !important; }
+canvas#fluid-canvas { z-index: 1 !important; }
+
+/* ── Suppress vivum's React element picker ───── */
+/* vivum-ui.js hides #ui at runtime; this is the CSS guard */
+#ui {
+  display:        none     !important;
+  width:          0        !important;
+  height:         0        !important;
+  overflow:       hidden   !important;
+  pointer-events: none     !important;
+  position:       absolute !important;
+}
+
+/* ── FPS counter (vivum injects this) ────────── */
+#fps {
+  position:       absolute !important;
+  bottom:         4px      !important;
+  right:          6px      !important;
+  font-size:      10px     !important;
+  font-family:    "Tahoma", sans-serif !important;
+  background:     rgba(0,0,0,0.45)     !important;
+  color:          #ccc     !important;
+  padding:        1px 4px  !important;
+  z-index:        10       !important;
+  pointer-events: none     !important;
+  border-radius:  2px      !important;
+}
+
+/* ── Hide vivum nav / social / dat.GUI ───────── */
+.dg,
+.dg.ac,
+.menu-scrim,
+.promo,
+[class*="submit"],
+[class*="gallery"],
+[class*="social"],
+[class*="login"],
+[class*="modal"] {
+  display: none !important;
+}

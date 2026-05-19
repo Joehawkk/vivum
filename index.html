@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <meta name="google" content="notranslate" />
+    <meta http-equiv="Content-Language" content="en" />
+    <title>vivum</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/xp-override.css" />
+  </head>
+  <body>
+
+    <!-- ═══ XP Confirm Dialog ══════════════════════ -->
+    <div id="xp-dialog" style="display:none">
+      <div id="xp-dialog-win">
+        <div id="xp-dialog-titlebar">
+          <div id="xp-dialog-title-left">
+            <span id="xp-dialog-icon">⚠️</span>
+            <span id="xp-dialog-title">vivum</span>
+          </div>
+          <button class="tbtn tbtn-close" id="xp-dialog-close">&#x2715;</button>
+        </div>
+        <div id="xp-dialog-body">
+          <div id="xp-dialog-content">
+            <span id="xp-dialog-img">❓</span>
+            <span id="xp-dialog-msg">Are you sure?</span>
+          </div>
+          <div id="xp-dialog-buttons">
+            <button id="xp-dialog-ok">OK</button>
+            <button id="xp-dialog-cancel">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ════════════════════════════════════════════ -->
+
+    <!-- ═══ Windows XP Boot Screen ════════════════ -->
+    <div id="boot-screen">
+      <div id="boot-logo">
+        <svg id="boot-flag" width="60" height="54" viewBox="0 0 60 54">
+          <path d="M0 0 L28 3 L28 25 L0 25 Z" fill="#e84040"/>
+          <path d="M30 3 L60 0 L60 25 L30 25 Z" fill="#50c040"/>
+          <path d="M0 27 L28 27 L28 51 L0 54 Z" fill="#4060f8"/>
+          <path d="M30 27 L60 27 L60 54 L30 51 Z" fill="#f8c800"/>
+        </svg>
+        <div id="boot-wordmark">
+          <div id="boot-win">Windows</div>
+          <div id="boot-xp-row">
+            <span id="boot-xp">XD</span>
+            <span id="boot-edition">Professional</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="boot-divider"></div>
+
+      <div id="boot-bar-wrap">
+        <div id="boot-bar-track">
+          <div id="boot-bar-fill"></div>
+        </div>
+      </div>
+
+      <div id="boot-corp">created by Joehawkk</div>
+    </div>
+    <!-- ════════════════════════════════════════════ -->
+
+    <div id="desktop">
+
+      <!-- Pixel-art wallpaper canvas -->
+      <canvas id="px-wallpaper"></canvas>
+
+      <!-- Desktop icons -->
+      <div id="desktop-icons">
+        <div class="desk-icon" id="icon-vivum">
+          <div class="desk-icon-img">
+            <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="8" fill="#0e0e0e"/>
+              <!-- sand stream: 2 cells wide, falls from top-center -->
+              <rect x="16" y="0"  width="8" height="4" fill="#dcb159"/>
+              <rect x="16" y="4"  width="4" height="4" fill="#d9a060"/>
+              <rect x="20" y="4"  width="4" height="4" fill="#dcb159"/>
+              <rect x="16" y="8"  width="8" height="4" fill="#dcb159"/>
+              <rect x="16" y="12" width="4" height="4" fill="#dcb159"/>
+              <rect x="20" y="12" width="4" height="4" fill="#d9a060"/>
+              <rect x="16" y="16" width="8" height="4" fill="#dcb159"/>
+              <!-- sand splash at water surface -->
+              <rect x="12" y="20" width="4" height="4" fill="#dcb159"/>
+              <rect x="16" y="20" width="8" height="4" fill="#dcb159"/>
+              <rect x="24" y="20" width="4" height="4" fill="#d9a060"/>
+              <!-- water pool: rows y=24-36 -->
+              <rect x="0"  y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="4"  y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="8"  y="24" width="4" height="4" fill="#add8e6"/>
+              <rect x="12" y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="16" y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="20" y="24" width="4" height="4" fill="#add8e6"/>
+              <rect x="24" y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="28" y="24" width="4" height="4" fill="#add8e6"/>
+              <rect x="32" y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="36" y="24" width="4" height="4" fill="#2389da"/>
+              <rect x="0"  y="28" width="4" height="4" fill="#add8e6"/>
+              <rect x="4"  y="28" width="4" height="4" fill="#2389da"/>
+              <rect x="8"  y="28" width="4" height="4" fill="#2389da"/>
+              <rect x="12" y="28" width="4" height="4" fill="#add8e6"/>
+              <rect x="16" y="28" width="4" height="4" fill="#2389da"/>
+              <rect x="20" y="28" width="4" height="4" fill="#2389da"/>
+              <rect x="24" y="28" width="4" height="4" fill="#add8e6"/>
+              <rect x="28" y="28" width="4" height="4" fill="#2389da"/>
+              <rect x="32" y="28" width="4" height="4" fill="#2389da"/>
+              <rect x="36" y="28" width="4" height="4" fill="#add8e6"/>
+              <rect x="0"  y="32" width="4" height="4" fill="#2389da"/>
+              <rect x="4"  y="32" width="4" height="4" fill="#add8e6"/>
+              <rect x="8"  y="32" width="4" height="4" fill="#2389da"/>
+              <rect x="12" y="32" width="4" height="4" fill="#2389da"/>
+              <rect x="16" y="32" width="4" height="4" fill="#dcb159"/>
+              <rect x="20" y="32" width="4" height="4" fill="#dcb159"/>
+              <rect x="24" y="32" width="4" height="4" fill="#2389da"/>
+              <rect x="28" y="32" width="4" height="4" fill="#2389da"/>
+              <rect x="32" y="32" width="4" height="4" fill="#add8e6"/>
+              <rect x="36" y="32" width="4" height="4" fill="#2389da"/>
+              <rect x="0"  y="36" width="4" height="4" fill="#2389da"/>
+              <rect x="4"  y="36" width="4" height="4" fill="#2389da"/>
+              <rect x="8"  y="36" width="4" height="4" fill="#add8e6"/>
+              <rect x="12" y="36" width="4" height="4" fill="#dcb159"/>
+              <rect x="16" y="36" width="4" height="4" fill="#dcb159"/>
+              <rect x="20" y="36" width="4" height="4" fill="#dcb159"/>
+              <rect x="24" y="36" width="4" height="4" fill="#dcb159"/>
+              <rect x="28" y="36" width="4" height="4" fill="#add8e6"/>
+              <rect x="32" y="36" width="4" height="4" fill="#2389da"/>
+              <rect x="36" y="36" width="4" height="4" fill="#2389da"/>
+              <!-- fire accent: left edge -->
+              <rect x="0"  y="8"  width="4" height="4" fill="#ff4500"/>
+              <rect x="0"  y="12" width="4" height="4" fill="#e2470d"/>
+              <rect x="0"  y="16" width="4" height="4" fill="#ff4500"/>
+              <!-- plant accent: right edge -->
+              <rect x="36" y="4"  width="4" height="4" fill="#8db828"/>
+              <rect x="36" y="8"  width="4" height="4" fill="#007d27"/>
+              <rect x="36" y="12" width="4" height="4" fill="#007d27"/>
+              <rect x="36" y="16" width="4" height="4" fill="#8db828"/>
+            </svg>
+          </div>
+          <div class="desk-icon-label">vivum</div>
+        </div>
+        <div class="desk-icon hidden-until-open" id="icon-recycle">
+          <div class="desk-icon-img">🗑️</div>
+          <div class="desk-icon-label">Recycle Bin</div>
+        </div>
+        <div class="desk-icon hidden-until-open" id="icon-save">
+          <div class="desk-icon-img">💾</div>
+          <div class="desk-icon-label">Quicksave</div>
+        </div>
+        <div class="desk-icon hidden-until-open" id="icon-presets">
+          <div class="desk-icon-img">📋</div>
+          <div class="desk-icon-label">Presets</div>
+        </div>
+      </div>
+
+      <!-- XP Application Window (hidden until user opens it) -->
+      <div id="xp-window" style="display:none">
+
+        <!-- Title bar -->
+        <div id="title-bar">
+          <div id="title-left">
+            <span id="title-text">vivum</span>
+          </div>
+          <div id="title-buttons">
+            <button class="tbtn" id="btn-min"       title="Minimize">&#x2013;</button>
+            <button class="tbtn" id="btn-max"       title="Maximize">&#x25A1;</button>
+            <button class="tbtn tbtn-close" id="btn-close-win" title="Close">&#x2715;</button>
+          </div>
+        </div>
+
+        <!-- Toolbar: vivum renders into #ui (hidden); vivum-ui.js builds #vivum-ui -->
+        <div id="toolbar">
+          <div id="ui"></div>
+          <div id="vivum-ui"></div>
+        </div>
+
+        <!-- Simulation canvas area.
+             #background is a required hook for vivum's touch handler.
+             Canvases start empty; vivum injects them; vivum-chrome.js re-parents them here. -->
+        <div id="canvas-area">
+          <div id="background"></div>
+          <canvas id="sand-canvas"></canvas>
+          <canvas id="fluid-canvas"></canvas>
+          <div id="fps"></div>
+        </div>
+
+        <!-- Status bar -->
+        <div id="statusbar">
+          <div class="sb-panel" id="sb-status">Ready</div>
+          <div class="sb-panel" id="sb-dim"></div>
+        </div>
+
+      </div><!-- /xp-window -->
+
+      <!-- Presets Window — XP Explorer style -->
+      <div id="presets-window" style="display:none">
+
+        <div id="presets-title-bar">
+          <div class="presets-title-left">
+            <span class="presets-title-icon">🗂️</span>
+            <span>Preset Scenes</span>
+          </div>
+          <div class="presets-title-btns">
+            <button class="tbtn" id="presets-min" title="Minimize">&#x2013;</button>
+            <button class="tbtn tbtn-close" id="presets-close" title="Close">&#x2715;</button>
+          </div>
+        </div>
+
+        <!-- XP address bar -->
+        <div id="presets-address">
+          <span class="addr-label">Address</span>
+          <div class="addr-field">
+            <span>🗂️</span>&nbsp;Preset Scenes
+          </div>
+        </div>
+
+        <!-- Icon grid (XP large-icon view) -->
+        <div id="presets-icons">
+          <div class="picon" data-preset="volcano" tabindex="0">
+            <div class="picon-img">🌋</div>
+            <div class="picon-name">Volcano</div>
+          </div>
+          <div class="picon" data-preset="glacier" tabindex="0">
+            <div class="picon-img">❄️</div>
+            <div class="picon-name">Glacier</div>
+          </div>
+          <div class="picon" data-preset="oasis" tabindex="0">
+            <div class="picon-img">🌴</div>
+            <div class="picon-name">Oasis</div>
+          </div>
+          <div class="picon" data-preset="cascade" tabindex="0">
+            <div class="picon-img">🌊</div>
+            <div class="picon-name">Cascade</div>
+          </div>
+        </div>
+
+        <!-- Status bar -->
+        <div id="presets-status">
+          <span id="presets-status-text">Double-click a scene to load it</span>
+        </div>
+
+      </div><!-- /presets-window -->
+
+      <!-- ══ Start Menu ══════════════════════════════════ -->
+      <div id="start-menu" style="display:none">
+        <div id="sm-header">
+          <span id="sm-username" title="Click to change name">joehawkk</span>
+        </div>
+        <div id="sm-body">
+          <div id="sm-left">
+            <div class="sm-item" data-sm-action="open-vivum">
+              <span class="sm-item-icon"><svg width="28" height="28" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="#0e0e0e"/><rect x="16" y="0" width="8" height="4" fill="#dcb159"/><rect x="16" y="4" width="4" height="4" fill="#d9a060"/><rect x="20" y="4" width="4" height="4" fill="#dcb159"/><rect x="16" y="8" width="8" height="4" fill="#dcb159"/><rect x="16" y="12" width="4" height="4" fill="#dcb159"/><rect x="20" y="12" width="4" height="4" fill="#d9a060"/><rect x="16" y="16" width="8" height="4" fill="#dcb159"/><rect x="12" y="20" width="4" height="4" fill="#dcb159"/><rect x="16" y="20" width="8" height="4" fill="#dcb159"/><rect x="24" y="20" width="4" height="4" fill="#d9a060"/><rect x="0" y="24" width="4" height="4" fill="#2389da"/><rect x="4" y="24" width="4" height="4" fill="#2389da"/><rect x="8" y="24" width="4" height="4" fill="#add8e6"/><rect x="12" y="24" width="4" height="4" fill="#2389da"/><rect x="16" y="24" width="4" height="4" fill="#2389da"/><rect x="20" y="24" width="4" height="4" fill="#add8e6"/><rect x="24" y="24" width="4" height="4" fill="#2389da"/><rect x="28" y="24" width="4" height="4" fill="#add8e6"/><rect x="32" y="24" width="4" height="4" fill="#2389da"/><rect x="36" y="24" width="4" height="4" fill="#2389da"/><rect x="0" y="28" width="4" height="4" fill="#add8e6"/><rect x="4" y="28" width="4" height="4" fill="#2389da"/><rect x="8" y="28" width="4" height="4" fill="#2389da"/><rect x="12" y="28" width="4" height="4" fill="#add8e6"/><rect x="16" y="28" width="4" height="4" fill="#2389da"/><rect x="20" y="28" width="4" height="4" fill="#2389da"/><rect x="24" y="28" width="4" height="4" fill="#add8e6"/><rect x="28" y="28" width="4" height="4" fill="#2389da"/><rect x="32" y="28" width="4" height="4" fill="#2389da"/><rect x="36" y="28" width="4" height="4" fill="#add8e6"/><rect x="0" y="32" width="4" height="4" fill="#2389da"/><rect x="4" y="32" width="4" height="4" fill="#add8e6"/><rect x="8" y="32" width="4" height="4" fill="#2389da"/><rect x="12" y="32" width="4" height="4" fill="#2389da"/><rect x="16" y="32" width="4" height="4" fill="#dcb159"/><rect x="20" y="32" width="4" height="4" fill="#dcb159"/><rect x="24" y="32" width="4" height="4" fill="#2389da"/><rect x="28" y="32" width="4" height="4" fill="#2389da"/><rect x="32" y="32" width="4" height="4" fill="#add8e6"/><rect x="36" y="32" width="4" height="4" fill="#2389da"/><rect x="0" y="36" width="4" height="4" fill="#2389da"/><rect x="4" y="36" width="4" height="4" fill="#2389da"/><rect x="8" y="36" width="4" height="4" fill="#add8e6"/><rect x="12" y="36" width="4" height="4" fill="#dcb159"/><rect x="16" y="36" width="4" height="4" fill="#dcb159"/><rect x="20" y="36" width="4" height="4" fill="#dcb159"/><rect x="24" y="36" width="4" height="4" fill="#dcb159"/><rect x="28" y="36" width="4" height="4" fill="#add8e6"/><rect x="32" y="36" width="4" height="4" fill="#2389da"/><rect x="36" y="36" width="4" height="4" fill="#2389da"/><rect x="0" y="8" width="4" height="4" fill="#ff4500"/><rect x="0" y="12" width="4" height="4" fill="#e2470d"/><rect x="0" y="16" width="4" height="4" fill="#ff4500"/><rect x="36" y="4" width="4" height="4" fill="#8db828"/><rect x="36" y="8" width="4" height="4" fill="#007d27"/><rect x="36" y="12" width="4" height="4" fill="#007d27"/><rect x="36" y="16" width="4" height="4" fill="#8db828"/></svg></span>
+              <div class="sm-item-text">
+                <div class="sm-item-name">vivum</div>
+                <div class="sm-item-sub">Sand simulation</div>
+              </div>
+            </div>
+            <div class="sm-item" data-sm-action="open-presets">
+              <span class="sm-item-icon">📋</span>
+              <div class="sm-item-text">
+                <div class="sm-item-name">Preset Scenes</div>
+                <div class="sm-item-sub">Load a scene</div>
+              </div>
+            </div>
+            <div class="sm-item" data-sm-action="quicksave">
+              <span class="sm-item-icon">💾</span>
+              <div class="sm-item-text">
+                <div class="sm-item-name">Quicksave</div>
+                <div class="sm-item-sub">Save canvas state</div>
+              </div>
+            </div>
+            <div class="sm-sep-line"></div>
+            <div class="sm-item" data-sm-action="recycle">
+              <span class="sm-item-icon">🗑️</span>
+              <div class="sm-item-text">
+                <div class="sm-item-name">Recycle Bin</div>
+                <div class="sm-item-sub">Clear canvas</div>
+              </div>
+            </div>
+          </div>
+          <div id="sm-right">
+            <div class="sm-item-r" data-sm-action="github">
+              <svg class="sm-item-r-icon" viewBox="0 0 16 16" width="18" height="18" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+              <span>GitHub</span>
+            </div>
+            <div class="sm-sep-line-r"></div>
+            <div class="sm-item-r" data-sm-action="about">
+              <span class="sm-item-r-icon">ℹ️</span>
+              <span>About vivum</span>
+            </div>
+          </div>
+        </div>
+        <div id="sm-footer">
+          <button class="sm-footer-btn" id="sm-shutdown">
+            <span class="sm-footer-icon">⏻</span>
+            <span>Shut Down</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══ Volume Popup ═══════════════════════════════ -->
+      <div id="vol-popup" style="display:none">
+        <div class="tray-popup-title">Volume</div>
+        <div id="vol-track">
+          <div id="vol-fill"></div>
+          <div id="vol-thumb"></div>
+        </div>
+        <div id="vol-label">100%</div>
+      </div>
+
+      <!-- ══ Network Popup ══════════════════════════════ -->
+      <div id="net-popup" style="display:none">
+        <div class="tray-popup-title">🌐 Network</div>
+        <div class="net-status connected">● Connected</div>
+        <div class="net-detail">vivum.local</div>
+        <div class="net-detail">Speed: ∞ Gbps</div>
+      </div>
+
+      <!-- Taskbar -->
+      <div id="taskbar">
+        <button id="start-btn">
+          <svg id="win-flag" width="18" height="16" viewBox="0 0 18 16" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0 L8.4 0.9 L8.4 7.4 L0 7.4 Z"    fill="#e84040"/>
+            <path d="M9 0.9 L18 0 L18 7.4 L9 7.4 Z"       fill="#50c040"/>
+            <path d="M0 8 L8.4 8 L8.4 15.1 L0 16 Z"       fill="#4060f8"/>
+            <path d="M9 8 L18 8 L18 16 L9 15.1 Z"         fill="#f8c800"/>
+          </svg>
+          <span>start</span>
+        </button>
+        <div class="taskbar-sep"></div>
+        <div id="taskbar-tasks">
+          <button class="task-btn" id="task-vivum" style="display:none"><svg width="15" height="15" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle"><rect width="40" height="40" rx="8" fill="#0e0e0e"/><rect x="16" y="0" width="8" height="4" fill="#dcb159"/><rect x="16" y="4" width="4" height="4" fill="#d9a060"/><rect x="20" y="4" width="4" height="4" fill="#dcb159"/><rect x="16" y="8" width="8" height="4" fill="#dcb159"/><rect x="16" y="12" width="4" height="4" fill="#dcb159"/><rect x="20" y="12" width="4" height="4" fill="#d9a060"/><rect x="16" y="16" width="8" height="4" fill="#dcb159"/><rect x="12" y="20" width="4" height="4" fill="#dcb159"/><rect x="16" y="20" width="8" height="4" fill="#dcb159"/><rect x="24" y="20" width="4" height="4" fill="#d9a060"/><rect x="0" y="24" width="4" height="4" fill="#2389da"/><rect x="4" y="24" width="4" height="4" fill="#2389da"/><rect x="8" y="24" width="4" height="4" fill="#add8e6"/><rect x="12" y="24" width="4" height="4" fill="#2389da"/><rect x="16" y="24" width="4" height="4" fill="#2389da"/><rect x="20" y="24" width="4" height="4" fill="#add8e6"/><rect x="24" y="24" width="4" height="4" fill="#2389da"/><rect x="28" y="24" width="4" height="4" fill="#add8e6"/><rect x="32" y="24" width="4" height="4" fill="#2389da"/><rect x="36" y="24" width="4" height="4" fill="#2389da"/><rect x="0" y="28" width="4" height="4" fill="#add8e6"/><rect x="4" y="28" width="4" height="4" fill="#2389da"/><rect x="8" y="28" width="4" height="4" fill="#2389da"/><rect x="12" y="28" width="4" height="4" fill="#add8e6"/><rect x="16" y="28" width="4" height="4" fill="#2389da"/><rect x="20" y="28" width="4" height="4" fill="#2389da"/><rect x="24" y="28" width="4" height="4" fill="#add8e6"/><rect x="28" y="28" width="4" height="4" fill="#2389da"/><rect x="32" y="28" width="4" height="4" fill="#2389da"/><rect x="36" y="28" width="4" height="4" fill="#add8e6"/><rect x="0" y="32" width="4" height="4" fill="#2389da"/><rect x="4" y="32" width="4" height="4" fill="#add8e6"/><rect x="8" y="32" width="4" height="4" fill="#2389da"/><rect x="12" y="32" width="4" height="4" fill="#2389da"/><rect x="16" y="32" width="4" height="4" fill="#dcb159"/><rect x="20" y="32" width="4" height="4" fill="#dcb159"/><rect x="24" y="32" width="4" height="4" fill="#2389da"/><rect x="28" y="32" width="4" height="4" fill="#2389da"/><rect x="32" y="32" width="4" height="4" fill="#add8e6"/><rect x="36" y="32" width="4" height="4" fill="#2389da"/><rect x="0" y="36" width="4" height="4" fill="#2389da"/><rect x="4" y="36" width="4" height="4" fill="#2389da"/><rect x="8" y="36" width="4" height="4" fill="#add8e6"/><rect x="12" y="36" width="4" height="4" fill="#dcb159"/><rect x="16" y="36" width="4" height="4" fill="#dcb159"/><rect x="20" y="36" width="4" height="4" fill="#dcb159"/><rect x="24" y="36" width="4" height="4" fill="#dcb159"/><rect x="28" y="36" width="4" height="4" fill="#add8e6"/><rect x="32" y="36" width="4" height="4" fill="#2389da"/><rect x="36" y="36" width="4" height="4" fill="#2389da"/><rect x="0" y="8" width="4" height="4" fill="#ff4500"/><rect x="0" y="12" width="4" height="4" fill="#e2470d"/><rect x="0" y="16" width="4" height="4" fill="#ff4500"/><rect x="36" y="4" width="4" height="4" fill="#8db828"/><rect x="36" y="8" width="4" height="4" fill="#007d27"/><rect x="36" y="12" width="4" height="4" fill="#007d27"/><rect x="36" y="16" width="4" height="4" fill="#8db828"/></svg> vivum</button>
+        </div>
+        <div id="system-tray">
+          <span class="tray-icon" title="Volume">🔊</span>
+          <span class="tray-icon" title="Network">🌐</span>
+          <div id="clock">00:00</div>
+        </div>
+      </div><!-- /taskbar -->
+
+    </div><!-- /desktop -->
+
+    <!-- vivum bundle — real physics engine -->
+    <script>
+      // Stub window.UI so vivum doesn't crash before React mounts.
+      // React will replace this with the real component instance.
+      window.UI = { state: { selectedElement: 2, size: 2 } };
+      window.paused = false;
+    </script>
+    <script async src="engine/loader.js"></script>
+
+    <!-- XP dialog (must load before chrome) -->
+    <script type="module" src="js/dialog.js"></script>
+
+    <!-- Vivum chrome: clock, minimize, canvas re-parenting -->
+    <script type="module" src="js/vivum-chrome.js"></script>
+
+    <!-- Vivum toolbar: XP-styled element & brush picker -->
+    <script type="module" src="js/vivum-ui.js"></script>
+
+    <!-- Vivum presets: scene loader -->
+    <script type="module" src="js/presets.js"></script>
+
+    <!-- Boot sequence -->
+    <script type="module" src="js/boot.js"></script>
+
+    <!-- Pixel-art wallpaper -->
+    <script src="js/wallpaper.js"></script>
+  </body>
+</html>
