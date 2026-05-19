@@ -111,11 +111,12 @@ function buildUI() {
   pauseBtn.title = 'Pause / Resume';
   pauseBtn.textContent = '⏸';
   pauseBtn.addEventListener('click', () => {
-    window.paused = !window.paused;
-    pauseBtn.textContent = window.paused ? '▶' : '⏸';
-    pauseBtn.classList.toggle('selected', !!window.paused);
+    window.__vivumUserPaused = !window.__vivumUserPaused;
+    window.paused = window.__vivumUserPaused;
+    pauseBtn.textContent = window.__vivumUserPaused ? '▶' : '⏸';
+    pauseBtn.classList.toggle('selected', !!window.__vivumUserPaused);
     const sb = document.getElementById('sb-status');
-    if (sb) sb.textContent = window.paused ? 'Paused' : 'Ready';
+    if (sb) sb.textContent = window.__vivumUserPaused ? 'Paused' : 'Ready';
   });
   ctrlRow.appendChild(pauseBtn);
 

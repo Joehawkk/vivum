@@ -345,10 +345,27 @@ const universeWatcher = setInterval(() => {
     clearInterval(universeWatcher);
 
     // Force unpause — engine sometimes starts paused internally
+    window.__vivumUserPaused = false;
     window.paused = false;
     if (window.UI && typeof window.UI.setState === 'function') {
       window.UI.setState({ paused: false });
     }
+
+    // Throttle simulation to 60 TPS regardless of monitor refresh rate
+    const TARGET_MS = 1000 / 60;
+    let _lastTick = performance.now();
+    function _throttle(now) {
+      if (window.__vivumUserPaused) {
+        window.paused = true;
+      } else if (now - _lastTick >= TARGET_MS) {
+        window.paused = false;
+        _lastTick = now;
+      } else {
+        window.paused = true;
+      }
+      requestAnimationFrame(_throttle);
+    }
+    requestAnimationFrame(_throttle);
 
     const sbDim = document.getElementById('sb-dim');
     if (sbDim) sbDim.textContent = '300 × 300';
