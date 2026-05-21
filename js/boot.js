@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────
 //  VIVUM — Boot sequence
-import { playStartup, playWindowOpen } from './sounds.js';
+import { playStartup, playWindowOpen, playBootSwell } from './sounds.js';
 //  1. XP splash screen (~4 s)
 //  2. Fades out → desktop with only vivum icon
 //  3. Icon pulses → user double-clicks
@@ -13,13 +13,26 @@ async function runBoot() {
   const screen = document.getElementById('boot-screen');
   const icon   = document.getElementById('icon-vivum');
 
+  // Звук появления экрана загрузки
+  playBootSwell();
+
   // Boot screen is visible by default; progress bar runs via CSS.
-  await sleep(4200);
+  // Click anywhere to skip
+  let skipped = false;
+  const skipBoot = () => { skipped = true; };
+  screen.addEventListener('click', skipBoot, { once: true });
+
+  const BOOT_MS = 2500;
+  const step = 50;
+  for (let t = 0; t < BOOT_MS; t += step) {
+    if (skipped) break;
+    await sleep(step);
+  }
 
   // Fade out boot screen + play XP startup sound
   screen.classList.add('fade-out');
   playStartup();
-  await sleep(1000);
+  await sleep(1700); // чуть больше CSS transition (1.6s) — даём ей полностью завершиться
   screen.style.display = 'none';
 
   // Vivum icon pulses — hint to double-click

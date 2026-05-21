@@ -56,7 +56,7 @@ async function loadVolcano() {
   // Ocean at base — fills with solidified lava over time
   const waterY=baseY+6;
   fill(0, waterY,   N-1, N-1,      S.WATER);
-  fill(0, waterY-4, N-1, waterY-1, S.SAND);
+  fill(0, waterY-4, N-1, waterY-1, S.WALL);
 
   // Coral seeds + fungus on the seabed
   for(let i=0;i<8;i++) dot(12+i*37, waterY+18, 3, S.SEED);

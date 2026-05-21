@@ -3,10 +3,16 @@
 //  Usage: await xpConfirm('Message text')
 //  Returns true (OK) or false (Cancel / close)
 // ─────────────────────────────────────────────
+import { playClick } from './sounds.js';
+
+let _hideTimer = null;
 
 export function xpConfirm(message, { title = 'vivum', icon = '❓', titleIcon = '⚠️' } = {}) {
   return new Promise(resolve => {
     const overlay  = document.getElementById('xp-dialog');
+
+    // Cancel any pending hide from a previous dialog
+    if (_hideTimer) { clearTimeout(_hideTimer); _hideTimer = null; }
     const msgEl    = document.getElementById('xp-dialog-msg');
     const titleEl  = document.getElementById('xp-dialog-title');
     const tIconEl  = document.getElementById('xp-dialog-icon');
@@ -29,7 +35,7 @@ export function xpConfirm(message, { title = 'vivum', icon = '❓', titleIcon = 
 
     function finish(result) {
       overlay.classList.remove('visible');
-      setTimeout(() => { overlay.style.display = 'none'; }, 180);
+      _hideTimer = setTimeout(() => { overlay.style.display = 'none'; _hideTimer = null; }, 180);
       cleanup();
       resolve(result);
     }
@@ -42,12 +48,12 @@ export function xpConfirm(message, { title = 'vivum', icon = '❓', titleIcon = 
       document.removeEventListener('keydown', onKey);
     }
 
-    const onOk     = () => finish(true);
-    const onCancel = () => finish(false);
-    const onOverlayClick = e => { if (e.target === overlay) finish(false); };
+    const onOk     = () => { playClick(); finish(true);  };
+    const onCancel = () => { playClick(); finish(false); };
+    const onOverlayClick = e => { if (e.target === overlay) { playClick(); finish(false); } };
     const onKey = e => {
-      if (e.key === 'Enter')  { e.preventDefault(); finish(true);  }
-      if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+      if (e.key === 'Enter')  { e.preventDefault(); playClick(); finish(true);  }
+      if (e.key === 'Escape') { e.preventDefault(); playClick(); finish(false); }
     };
 
     okBtn.addEventListener('click', onOk);

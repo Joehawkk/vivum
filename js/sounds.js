@@ -95,6 +95,51 @@ function noise(offset, dur, vol, lowHz, highHz) {
 //  Inspired by the Brian Eno XP sound:
 //  soft low pad → rising harmonic arpegg → shimmer
 // ══════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  🌅  BOOT SWELL — звук появления экрана загрузки
+//  Атмосферный подъём: суббас → мид-аккорд → мерцание.
+//  A minor: торжественно, спокойно, красиво.
+// ══════════════════════════════════════════════
+export function playBootSwell() {
+  const c = ctx(), t = c.currentTime;
+
+  // Треугольная огибающая: линейный подъём → пик → линейный спад
+  // Никакого hold + exponential — только плавные прямые линии
+  function swell(freq, offset, totalDur, peakAt, vol) {
+    const osc = c.createOscillator();
+    const lp  = c.createBiquadFilter();
+    lp.type = 'lowpass'; lp.frequency.value = freq * 4;
+    const g = c.createGain();
+    osc.connect(lp); lp.connect(g); g.connect(_masterGain);
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const ts = t + offset;
+    g.gain.setValueAtTime(0, ts);
+    g.gain.linearRampToValueAtTime(vol,    ts + peakAt);       // подъём
+    g.gain.linearRampToValueAtTime(0,      ts + totalDur);     // спад — такой же плавный
+    osc.start(ts);
+    osc.stop(ts + totalDur + 0.05);
+  }
+
+  // swell(freq, offset, totalDur, peakAt, vol)
+  // Суббас — самый долгий, пик почти в середине
+  swell(55,  0.00, 4.20, 1.40, 0.034);  // A1
+  swell(82,  0.08, 4.00, 1.30, 0.028);  // E2
+
+  // Бас A minor
+  swell(110, 0.16, 3.80, 1.20, 0.032);  // A2
+  swell(165, 0.24, 3.60, 1.10, 0.026);  // E3
+  swell(220, 0.34, 3.30, 1.00, 0.022);  // A3
+
+  // Мид — чуть позже и короче
+  swell(261, 0.46, 3.00, 0.90, 0.018);  // C4
+  swell(330, 0.58, 2.70, 0.80, 0.015);  // E4
+
+  // Высокий блеск — появляется ближе к пику и тихо тает
+  swell(880,  0.80, 2.20, 0.60, 0.018); // A5
+  swell(1760, 1.10, 1.80, 0.50, 0.009); // A6
+}
+
 export function playStartup() {
   // Low warm pad (almost inaudible foundation)
   tone(82,  0.00, 3.80, 0.045);  // E2
@@ -563,6 +608,104 @@ function drawWind(c, t) {
   nburst(c, t, 0.030, 0.16, 0.014, 280 * p,  900 * p);
   // High shimmer — leaves / dust in the breeze
   nburst(c, t, 0.070, 0.12, 0.008, 800 * p, 2600 * p);
+}
+
+// ══════════════════════════════════════════════
+//  💥  XP ERROR SOUNDS — cascade error variants
+//  Each variant mimics a different Windows XP system sound:
+//  0 = Critical Stop  1 = Error  2 = Exclamation  3 = Asterisk
+// ══════════════════════════════════════════════
+export function playXpError(variant = 0) {
+  const c = ctx(), t = c.currentTime;
+
+  function harsh(freq, offset, dur, vol, type = 'square') {
+    const osc = c.createOscillator();
+    const lp  = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2400;
+    const g   = c.createGain();
+    osc.connect(lp); lp.connect(g); g.connect(_masterGain);
+    osc.type = type;
+    osc.frequency.value = freq;
+    const ts = t + offset, atk = 0.004;
+    g.gain.setValueAtTime(0.0001, ts);
+    g.gain.linearRampToValueAtTime(vol, ts + atk);
+    g.gain.setValueAtTime(vol, ts + Math.max(atk + 0.01, dur - 0.12));
+    g.gain.exponentialRampToValueAtTime(0.0001, ts + dur);
+    osc.start(ts); osc.stop(ts + dur + 0.04);
+  }
+
+  switch (variant % 4) {
+    case 0:
+      // Critical Stop — два резких нисходящих тона
+      harsh(987,  0.00, 0.18, 0.055);
+      harsh(784,  0.10, 0.16, 0.048);
+      harsh(523,  0.20, 0.22, 0.038);
+      nburst(c, t, 0, 0.08, 0.018, 200, 900);
+      break;
+    case 1:
+      // Windows XP Error — один грубый короткий звук
+      harsh(880,  0.00, 0.28, 0.060);
+      harsh(880,  0.00, 0.28, 0.030, 'sawtooth');
+      nburst(c, t, 0.01, 0.06, 0.020, 300, 1200);
+      break;
+    case 2:
+      // Exclamation — восходящий дубль
+      harsh(660,  0.00, 0.14, 0.050);
+      harsh(1047, 0.12, 0.20, 0.055);
+      nburst(c, t, 0.12, 0.05, 0.015, 400, 1800);
+      break;
+    case 3:
+      // Asterisk — мягче, с дребезгом
+      harsh(740,  0.00, 0.10, 0.045);
+      harsh(740,  0.14, 0.10, 0.040);
+      harsh(740,  0.28, 0.14, 0.032);
+      nburst(c, t, 0, 0.12, 0.012, 600, 2000);
+      break;
+  }
+}
+
+// ── BSOD — continuous frozen-PC squeal ───────────
+// Имитирует зависший компьютер: непрерывный гудок PC-спикера
+// (~440 Hz square wave) с нарастающим шумом, длится ~5 с.
+export function playBSOD() {
+  const c = ctx(), t = c.currentTime;
+  const DUR = 5.2;
+
+  // Основной тон — PC speaker (square, 440 Hz)
+  const osc = c.createOscillator();
+  osc.type = 'square';
+  osc.frequency.value = 440;
+
+  // Лёгкая ЛЧ-фильтрация чтобы не резало уши
+  const lp = c.createBiquadFilter();
+  lp.type = 'lowpass';
+  lp.frequency.value = 1800;
+
+  const g = c.createGain();
+  osc.connect(lp); lp.connect(g); g.connect(_masterGain);
+
+  // Атака 20 мс → держим → плавное затухание за последние 0.4 с
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(0.055, t + 0.02);
+  g.gain.setValueAtTime(0.055, t + DUR - 0.4);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + DUR);
+
+  osc.start(t);
+  osc.stop(t + DUR + 0.05);
+
+  // Фоновый белый шум — "артефакт" замёрзшего звука
+  const src = c.createBufferSource();
+  src.buffer = getNoiseBuf(c);
+  src.loop = true;
+  const ng = c.createGain();
+  const nlp = c.createBiquadFilter();
+  nlp.type = 'lowpass'; nlp.frequency.value = 600;
+  src.connect(nlp); nlp.connect(ng); ng.connect(_masterGain);
+  ng.gain.setValueAtTime(0.0001, t);
+  ng.gain.linearRampToValueAtTime(0.018, t + 0.15);
+  ng.gain.setValueAtTime(0.018, t + DUR - 0.4);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + DUR);
+  src.start(t);
+  src.stop(t + DUR + 0.05);
 }
 
 // ── ERASE — soft pencil/rubber swipe ──────────

@@ -5,7 +5,8 @@ import { xpConfirm } from './dialog.js';
 import {
   playWindowOpen, playWindowClose, playMinimize, playRestore,
   playDing, playClick, playNotify, playSave, playRecycle,
-  setMasterVolume, startAmbient, playDrawSound, playVolumeTest
+  setMasterVolume, startAmbient, playDrawSound, playVolumeTest,
+  playXpError, playBSOD
 } from './sounds.js';
 
 // ── Animation helpers ─────────────────────────
@@ -64,37 +65,29 @@ setInterval(updateClock, 15000);
   const bar = document.getElementById('title-bar');
   let ox = 0, oy = 0, dragging = false;
 
-  bar.addEventListener('mousedown', e => {
-    if (e.target.closest('.tbtn')) return;
-    dragging = true;
+  function startDrag(cx, cy) {
     const r = win.getBoundingClientRect();
-    ox = e.clientX - r.left;
-    oy = e.clientY - r.top;
+    ox = cx - r.left; oy = cy - r.top;
+    dragging = true;
     win.style.userSelect = 'none';
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', e => {
+  }
+  function moveDrag(cx, cy) {
     if (!dragging) return;
-    const desktop  = document.getElementById('desktop');
-    const dr       = desktop.getBoundingClientRect();
-    const taskbar  = document.getElementById('taskbar');
-    const tbH      = taskbar ? taskbar.offsetHeight : 42;
+    const dr  = document.getElementById('desktop').getBoundingClientRect();
+    const tbH = document.getElementById('taskbar')?.offsetHeight ?? 42;
+    win.style.left = Math.max(0, Math.min(dr.width  - win.offsetWidth,  cx - ox)) + 'px';
+    win.style.top  = Math.max(0, Math.min(dr.height - win.offsetHeight - tbH, cy - oy)) + 'px';
+  }
+  function endDrag() { dragging = false; win.style.userSelect = ''; }
 
-    const maxLeft  = dr.width  - win.offsetWidth;
-    const maxTop   = dr.height - win.offsetHeight - tbH;
+  bar.addEventListener('mousedown', e => { if (!e.target.closest('.tbtn')) { startDrag(e.clientX, e.clientY); e.preventDefault(); } });
+  document.addEventListener('mousemove', e => moveDrag(e.clientX, e.clientY));
+  document.addEventListener('mouseup', endDrag);
 
-    const left = Math.max(0, Math.min(maxLeft, e.clientX - ox));
-    const top  = Math.max(0, Math.min(maxTop,  e.clientY - oy));
-
-    win.style.left = left + 'px';
-    win.style.top  = top  + 'px';
-  });
-
-  document.addEventListener('mouseup', () => {
-    dragging = false;
-    win.style.userSelect = '';
-  });
+  // Touch
+  bar.addEventListener('touchstart', e => { if (!e.target.closest('.tbtn')) { const t = e.touches[0]; startDrag(t.clientX, t.clientY); e.preventDefault(); } }, { passive: false });
+  document.addEventListener('touchmove', e => { if (dragging) { const t = e.touches[0]; moveDrag(t.clientX, t.clientY); e.preventDefault(); } }, { passive: false });
+  document.addEventListener('touchend', endDrag);
 })();
 
 // ── Window chrome ──────────────────────────────
@@ -138,12 +131,88 @@ document.getElementById('btn-close-win').addEventListener('click', async () => {
   delete xpWin.dataset.everOpened;
 });
 
-// Maximize — no-op for now
-document.getElementById('btn-max').addEventListener('click', () => {});
+// Показывает одиночное XP-окно ошибки (тот же стиль что cascade errors)
+function showXpError(title, text) {
+  const desktop = document.getElementById('desktop');
+  const W = 360, H = 180;
+  const left = Math.max(0, window.innerWidth  / 2 - W / 2);
+  const top  = Math.max(0, window.innerHeight / 2 - H / 2);
+
+  const win = document.createElement('div');
+  win.className = 'xp-err-win';
+  win.style.left   = left + 'px';
+  win.style.top    = top  + 'px';
+  win.style.zIndex = '9500';
+
+  win.innerHTML = `
+    <div class="xp-err-titlebar">
+      <div class="xp-err-titlebar-left">
+        <svg width="14" height="14" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="8,1 15,15 1,15" fill="#ffe400" stroke="#c88000" stroke-width="1"/>
+          <text x="8" y="13.5" font-size="9" text-anchor="middle" fill="#000" font-weight="bold" font-family="Arial">!</text>
+        </svg>
+        <span>${title}</span>
+      </div>
+      <button class="tbtn tbtn-close xp-err-close-btn">✕</button>
+    </div>
+    <div class="xp-err-body">
+      <svg class="xp-err-icon" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="15" fill="#c00"/>
+        <circle cx="16" cy="16" r="13" fill="#f33"/>
+        <line x1="10" y1="10" x2="22" y2="22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <line x1="22" y1="10" x2="10" y2="22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="xp-err-msg">${text}</span>
+    </div>
+    <div class="xp-err-footer">
+      <button class="xp-err-ok-btn">OK</button>
+    </div>`;
+
+  desktop.appendChild(win);
+
+  // Drag
+  const bar = win.querySelector('.xp-err-titlebar');
+  let drag = false, ox = 0, oy = 0;
+  bar.addEventListener('mousedown', e => {
+    if (e.target.closest('.tbtn')) return;
+    drag = true;
+    const r = win.getBoundingClientRect();
+    ox = e.clientX - r.left; oy = e.clientY - r.top;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!drag) return;
+    win.style.left = (e.clientX - ox) + 'px';
+    win.style.top  = (e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mouseup', () => { drag = false; });
+
+  win.querySelector('.xp-err-close-btn').addEventListener('click', () => win.remove());
+  win.querySelector('.xp-err-ok-btn').addEventListener('click', () => win.remove());
+}
+
+// Maximize — show error
+document.getElementById('btn-max').addEventListener('click', () => {
+  playDing();
+  showXpError(
+    'vivum',
+    'Невозможно развернуть окно.\n\nУвеличение разрешения дестабилизирует симуляцию частиц.\n\nОперация отменена.'
+  );
+});
+
+// ── Double-tap helper for touch devices ──────────────
+function onDoubleTap(el, fn) {
+  let last = 0;
+  el.addEventListener('touchend', e => {
+    const now = Date.now();
+    if (now - last < 350) { e.preventDefault(); fn(); }
+    last = now;
+  });
+}
 
 // icon-vivum dblclick — boot.js handles the very first open via { once: true }.
 // This handler covers: minimise/restore when open, AND re-open after close.
-document.getElementById('icon-vivum').addEventListener('dblclick', () => {
+function iconVivumActivate() {
   const tb = document.getElementById('task-vivum');
 
   if (!xpWin.dataset.everOpened) {
@@ -166,7 +235,9 @@ document.getElementById('icon-vivum').addEventListener('dblclick', () => {
     animMinimise(xpWin);
     tb.classList.remove('active');
   }
-});
+}
+document.getElementById('icon-vivum').addEventListener('dblclick', iconVivumActivate);
+onDoubleTap(document.getElementById('icon-vivum'), iconVivumActivate);
 
 // ── Recycle Bin ───────────────────────────────
 document.getElementById('icon-recycle').addEventListener('dblclick', async () => {
@@ -269,75 +340,7 @@ function flashStatus(msg, ms = 2000) {
   setTimeout(() => { if (sb.textContent === msg) sb.textContent = 'Ready'; }, ms);
 }
 
-// ── Wind tool ─────────────────────────────────
-// Wind is a virtual element (id 20) — not in vivum's Species enum.
-// It shifts particles in the brush area toward the mouse-movement direction
-// by writing directly into the WASM cell buffer via u.cells().
-const WIND_ID    = 20;
-const WIND_RADII = [3, 6, 12, 20, 32];            // sim cells per size index
-// Species that wind can't move (empty=0, wall=1, cloner=5, wood=7, lava=8, ice=9, stone=13)
-const WIND_FIXED = new Set([0, 1, 5, 7, 8, 9, 13]);
-
-function applyWind(canvas, clientX, clientY, vx, vy) {
-  const u = window.u;
-  if (!u) return;
-  const cells = u.cells();
-  if (!cells) return;
-
-  const N = 300, S = 4;
-  const rect = canvas.getBoundingClientRect();
-  const scX  = N / rect.width;
-  const scY  = N / rect.height;
-
-  const cx = Math.max(0, Math.min(N - 1, Math.floor((clientX - rect.left) * scX)));
-  const cy = Math.max(0, Math.min(N - 1, Math.floor((clientY - rect.top)  * scY)));
-
-  // Wind vector in simulation coordinates
-  const dvx   = vx * scX;
-  const dvy   = vy * scY;
-  const speed = Math.hypot(dvx, dvy);
-  if (speed < 0.4) return;
-
-  // Clamp displacement to 1–3 cells
-  const str = Math.min(3, Math.max(1, Math.round(speed * 0.35)));
-  const wx  = Math.round((dvx / speed) * str);
-  const wy  = Math.round((dvy / speed) * str);
-  if (wx === 0 && wy === 0) return;
-
-  const sizeIdx = window.__vivumSize ?? 2;
-  const radius  = WIND_RADII[Math.max(0, Math.min(4, sizeIdx))];
-
-  // Gather moveable particles inside the brush circle
-  const particles = [];
-  for (let dy = -radius; dy <= radius; dy++) {
-    for (let dx = -radius; dx <= radius; dx++) {
-      if (dx * dx + dy * dy > radius * radius) continue;
-      const x = cx + dx, y = cy + dy;
-      if (x < 0 || x >= N || y < 0 || y >= N) continue;
-      const idx = (y * N + x) * S;
-      const sp  = cells[idx];
-      if (WIND_FIXED.has(sp)) continue;
-      particles.push({ x, y, sp, ra: cells[idx + 1], rb: cells[idx + 2] });
-    }
-  }
-
-  // Process particles furthest in wind direction first → chain-displacement
-  // without overwriting a source before it's been read.
-  particles.sort((a, b) => (b.x * wx + b.y * wy) - (a.x * wx + a.y * wy));
-
-  for (const { x, y, sp, ra, rb } of particles) {
-    const nx  = Math.max(0, Math.min(N - 1, x + wx));
-    const ny  = Math.max(0, Math.min(N - 1, y + wy));
-    const si  = (y  * N + x)  * S;
-    const di  = (ny * N + nx) * S;
-    if (cells[di] === 0) {            // destination empty — move
-      cells[di] = sp;  cells[di + 1] = ra;  cells[di + 2] = rb;
-      cells[si] = 0;   cells[si + 1] = 0;   cells[si + 2] = 0;
-    }
-    // if occupied — leave particle in place (no deletion)
-  }
-}
-
+// ── Fluid Wind ────────────────────────────────
 // ── Watch for vivum's universe ───────────
 const universeWatcher = setInterval(() => {
   if (window.u) {
@@ -368,64 +371,37 @@ const universeWatcher = setInterval(() => {
     requestAnimationFrame(_throttle);
 
     const sbDim = document.getElementById('sb-dim');
-    if (sbDim) sbDim.textContent = '300 × 300';
+    if (sbDim) {
+      const c = document.getElementById('sand-canvas');
+      if (c) sbDim.textContent = `${c.width} × ${c.height}`;
+    }
 
-    // Start ambient wind now that the simulation is live
     startAmbient();
 
-    // Wire draw sounds + wind tool to canvas mouse events
+    // ── Wire draw sounds ───────────────────────
     const canvas = document.getElementById('sand-canvas');
     if (canvas) {
       let drawing = false;
 
-      // Prefer our own element tracker; fall back to vivum state
       function getSelectedElement() {
         if (window.__vivumElem !== undefined) return window.__vivumElem;
         if (window.UI && window.UI.state) return window.UI.state.selectedElement;
         return 0;
       }
 
-      // Wind tracking state
-      let _windLastX = 0, _windLastY = 0, _windLastT = 0;
-
       canvas.addEventListener('mousedown', e => {
         drawing = true;
-        _windLastX = e.clientX;
-        _windLastY = e.clientY;
-        _windLastT = performance.now();
         playDrawSound(getSelectedElement());
       });
       document.addEventListener('mouseup', () => { drawing = false; });
 
-      // Coarse throttle: gate to ~20 calls/sec before hitting sounds.js.
       let _lastMoveSound = 0;
       canvas.addEventListener('mousemove', e => {
         if (!drawing) return;
         const now = performance.now();
-        const sel = getSelectedElement();
-
-        if (sel === WIND_ID) {
-          // Wind: apply physics on every frame (~60 fps)
-          const dt = now - _windLastT;
-          if (dt >= 14 && _windLastT > 0) {
-            const vx = (e.clientX - _windLastX) / dt * 16;
-            const vy = (e.clientY - _windLastY) / dt * 16;
-            applyWind(canvas, e.clientX, e.clientY, vx, vy);
-            if (now - _lastMoveSound > 80) {
-              _lastMoveSound = now;
-              playDrawSound(WIND_ID);
-            }
-          }
-          _windLastX = e.clientX;
-          _windLastY = e.clientY;
-          _windLastT = now;
-          return;
-        }
-
-        // All other elements: throttled sound only
         if (now - _lastMoveSound < 50) return;
         _lastMoveSound = now;
-        playDrawSound(sel);
+        playDrawSound(getSelectedElement());
       });
     }
   }
@@ -834,23 +810,182 @@ startMenu.querySelectorAll('[data-sm-action]').forEach(el => {
     } else if (act === 'github') {
       window.open('https://github.com/Joehawkk', '_blank');
     } else if (act === 'about') {
-      xpConfirm('vivum — sand simulation.\nBuilt by Joehawkk', {
-        title: 'About vivum', icon: '🏖', titleIcon: '🏖'
+      xpConfirm('Vivum — sand simulation.\nBuilt by Joehawkk', {
+        title: 'About Vivum', icon: '🏖', titleIcon: '🏖'
       });
     }
   });
 });
 
 // Shutdown button
+const ERR_MESSAGES = [
+  {
+    title: 'vivum.exe — Ошибка приложения',
+    text:  'Инструкция по адресу 0x00SAND4F обратилась к памяти\nпо адресу 0x00000000. Память не может быть «прочитана».\n\nЧастицы потеряны безвозвратно.',
+  },
+  {
+    title: 'Windows XD — Критическая ошибка',
+    text:  'vivum.exe заблокировал поток завершения работы.\n\nОперативная память заполнена песком на 99.8%.\n\nКод ошибки: 0x0000SAND',
+  },
+  {
+    title: 'Ядро симуляции — Сбой',
+    text:  'Обнаружена нестабильность частиц в ядре симуляции.\nvivum.exe удерживает 847 частиц и отказывается их\nотпускать. Выход из системы невозможен.\n\nКод: SAND_OVERFLOW',
+  },
+];
+
+const BSOD_TRIGGER = 38;
+let _errCount = 0;
+let _lastWin = null;
+
+function showBSOD() {
+  // Убираем все окна с ошибками
+  document.querySelectorAll('.xp-err-win').forEach(w => w.remove());
+
+  const bsod = document.createElement('div');
+  bsod.id = 'xp-bsod';
+  bsod.innerHTML = `<pre id="xp-bsod-text">A problem has been detected and Windows has been shut down to prevent damage
+to your computer.
+
+VIVUM_SAND_OVERFLOW_ERROR
+
+If this is the first time you've seen this Stop error screen,
+restart your computer. If this screen appears again, follow
+these steps:
+
+Check to make sure any new hardware or software is properly installed.
+If this is a new installation, ask your hardware or software manufacturer
+for any Windows updates you might need.
+
+If problems continue, disable or remove any newly installed hardware
+or software. Disable BIOS memory options such as caching or shadowing.
+If you need to use Safe Mode to remove or disable components, restart
+your computer, press F8 to select Advanced Startup Options, and then
+select Safe Mode.
+
+Technical information:
+
+*** STOP: 0x0000SAND (0x00000847, 0xC0000034, 0x00000000, 0x00000000)
+
+*** vivum.exe - Address F8C2B01D base at F8C20000, DateStamp 4d672ec4
+
+Beginning dump of physical memory
+Physical memory dump complete.
+Contact your system administrator or technical support group for further
+assistance.</pre>`;
+
+  document.body.appendChild(bsod);
+
+  playBSOD();
+  setTimeout(() => location.reload(), 5000);
+}
+
+function spawnNextError() {
+  const desktop = document.getElementById('desktop');
+  _errCount++;
+
+  if (_errCount > BSOD_TRIGGER) {
+    showBSOD();
+    return;
+  }
+
+  const msg = ERR_MESSAGES[(_errCount - 1) % ERR_MESSAGES.length];
+
+  // Позиция: случайная + небольшое диагональное смещение от предыдущего
+  let left, top;
+  const W = 385, H = 160;
+  const maxL = Math.max(0, window.innerWidth  - W - 10);
+  const maxT = Math.max(0, window.innerHeight - H - 50);
+  if (_lastWin && Math.random() < 0.6) {
+    // 60% — со смещением по диагонали
+    const offX = (Math.random() * 40 + 16) * (Math.random() < 0.5 ? 1 : -1);
+    const offY = (Math.random() * 30 + 12) * (Math.random() < 0.5 ? 1 : -1);
+    left = Math.max(0, Math.min(maxL, (parseFloat(_lastWin.style.left) || 0) + offX));
+    top  = Math.max(0, Math.min(maxT, (parseFloat(_lastWin.style.top)  || 0) + offY));
+  } else {
+    // 40% — полностью случайная позиция
+    left = Math.random() * maxL;
+    top  = Math.random() * maxT;
+  }
+
+  playXpError(_errCount - 1);
+
+  const win = document.createElement('div');
+  win.className = 'xp-err-win';
+  win.style.left    = left + 'px';
+  win.style.top     = top  + 'px';
+  win.style.zIndex  = 500 + _errCount;
+  _lastWin = win;
+
+  win.innerHTML = `
+    <div class="xp-err-titlebar">
+      <div class="xp-err-titlebar-left">
+        <svg width="14" height="14" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="8,1 15,15 1,15" fill="#ffe400" stroke="#c88000" stroke-width="1"/>
+          <text x="8" y="13.5" font-size="9" text-anchor="middle" fill="#000" font-weight="bold" font-family="Arial">!</text>
+        </svg>
+        <span>${msg.title}</span>
+      </div>
+      <button class="tbtn tbtn-close xp-err-close-btn">✕</button>
+    </div>
+    <div class="xp-err-body">
+      <svg class="xp-err-icon" width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="16" cy="16" r="15" fill="#c00"/>
+        <circle cx="16" cy="16" r="13" fill="#f33"/>
+        <line x1="10" y1="10" x2="22" y2="22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <line x1="22" y1="10" x2="10" y2="22" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="xp-err-msg">${msg.text}</span>
+    </div>
+    <div class="xp-err-footer">
+      <button class="xp-err-ok-btn">OK</button>
+    </div>`;
+
+  desktop.appendChild(win);
+
+  // Drag
+  const bar = win.querySelector('.xp-err-titlebar');
+  let drag = false, ox = 0, oy = 0;
+  bar.addEventListener('mousedown', e => {
+    if (e.target.closest('.tbtn')) return;
+    drag = true;
+    const r = win.getBoundingClientRect();
+    ox = e.clientX - r.left; oy = e.clientY - r.top;
+    win.style.zIndex = 700 + _errCount;
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', e => {
+    if (!drag) return;
+    win.style.left = (e.clientX - ox) + 'px';
+    win.style.top  = (e.clientY - oy) + 'px';
+  });
+  document.addEventListener('mouseup', () => { drag = false; });
+
+  // X closes the window; OK does NOT — windows pile up like in the GIF
+  win.querySelector('.xp-err-close-btn').addEventListener('click', () => win.remove());
+  win.querySelector('.xp-err-ok-btn').addEventListener('click', () => {});
+}
+
+function spawnCascadeErrors() {
+  _errCount = 0;
+  _lastWin  = null;
+
+  spawnNextError();
+  const interval = setInterval(() => {
+    if (_errCount >= BSOD_TRIGGER) {
+      clearInterval(interval);
+      showBSOD();
+      return;
+    }
+    spawnNextError();
+  }, 85);
+}
+
 document.getElementById('sm-shutdown').addEventListener('click', async () => {
   closeStartMenu();
+  playDing();
   const ok = await xpConfirm('Shut down Windows XD?', { icon: '⏻', titleIcon: '⏻' });
   if (!ok) return;
-  await animHide(xpWin, { dur: 200, toScale: 0.94, toOpacity: 0 });
-  const tb = document.getElementById('task-vivum');
-  tb.classList.remove('active');
-  tb.style.display = 'none';
-  delete xpWin.dataset.everOpened;
+  spawnCascadeErrors();
 });
 
 
@@ -906,7 +1041,7 @@ const volTrack = document.getElementById('vol-track');
 
 let _volTestTimer = null;
 
-function setVolume(v) {
+function setVolume(v, { save = false, test = false } = {}) {
   volume = Math.max(0, Math.min(100, v));
   volFill.style.width  = volume + '%';
   volThumb.style.right = (100 - volume) + '%';
@@ -914,14 +1049,19 @@ function setVolume(v) {
   volIcon.textContent  = volume === 0 ? '🔇' : volume < 50 ? '🔉' : '🔊';
   setMasterVolume(volume / 100);
 
-  // Play a soft test chord ~350 ms after the user stops moving the slider
-  // so they hear exactly what the chosen level sounds like.
-  clearTimeout(_volTestTimer);
-  if (volume > 0) {
-    _volTestTimer = setTimeout(playVolumeTest, 350);
+  if (save) {
+    try { localStorage.setItem('vivum-volume', volume); } catch {}
+  }
+
+  if (test) {
+    clearTimeout(_volTestTimer);
+    if (volume > 0) _volTestTimer = setTimeout(playVolumeTest, 350);
   }
 }
-setVolume(100);
+
+// Restore saved volume, fallback to 100
+const _savedVol = (() => { try { const v = localStorage.getItem('vivum-volume'); return v !== null ? Number(v) : 100; } catch { return 100; } })();
+setVolume(_savedVol);
 
 volIcon.addEventListener('click', e => {
   e.stopPropagation();
@@ -935,7 +1075,7 @@ volTrack.addEventListener('mousedown', e => {
   e.stopPropagation();
   const update = ev => {
     const r = volTrack.getBoundingClientRect();
-    setVolume(Math.round(((ev.clientX - r.left) / r.width) * 100));
+    setVolume(Math.round(((ev.clientX - r.left) / r.width) * 100), { save: true, test: true });
   };
   update(e);
   const up = () => { draggingVol = false; document.removeEventListener('mousemove', update); document.removeEventListener('mouseup', up); };
